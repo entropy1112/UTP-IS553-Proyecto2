@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package utp.is553.Entidades;
 
 import java.io.Serializable;
@@ -27,13 +23,13 @@ public class Cliente implements Serializable{
     private Integer clave;
     
     @Column(name = "Saldo")
-    private Long saldo;
+    private Integer saldo;
     
     public Cliente(){
         
     }
 
-    public Cliente(Integer usuario, Integer clave, Long saldo) {
+    public Cliente(Integer usuario, Integer clave, Integer saldo) {
         this.usuario = usuario;
         this.clave = clave;
         this.saldo = saldo;
@@ -55,11 +51,11 @@ public class Cliente implements Serializable{
         this.clave = clave;
     }
 
-    public Long getSaldo() {
+    public Integer getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(Long saldo) {
+    public void setSaldo(Integer saldo) {
         this.saldo = saldo;
     }
 
