@@ -14,7 +14,7 @@ import utp.is553.Entidades.Cliente;
  */
 public class ClienteDao implements Verificadores{
     
-    public static ClienteDao instancia;
+    private static ClienteDao instancia;
     
     public static ClienteDao getInstance(){
         if(instancia == null){
@@ -52,19 +52,20 @@ public class ClienteDao implements Verificadores{
     }
     
     public Integer retirarDinero(Integer usuario, Integer clave, Integer retiro, 
-                              Cajero cajero)
-                              throws BaseDatosException, 
-                                     SaldoInsuficienteException, 
-                                     ClaveErroneaException,
-                                     BilletesException {
+                                 Cajero cajero)
+                                 throws BaseDatosException, 
+                                        SaldoInsuficienteException, 
+                                        ClaveErroneaException,
+                                        BilletesException {
 
         Integer saldo = null;
+        CajeroDao cajeroDao = CajeroDao.getInstance();
         
         try {
             Cliente cliente = verificarDatos(usuario, clave);
             verificarSaldo(retiro, cliente);
             verificarExistencia(retiro, cajero);
-            cajero.retirar(retiro);
+            cajeroDao.retirar(retiro, cajero);
             saldo = cliente.getSaldo();
             saldo -= retiro;
             cliente.setSaldo(saldo);
@@ -82,7 +83,7 @@ public class ClienteDao implements Verificadores{
         return saldo;
         
     }
-   
+
 
     @Override
     public Cliente verificarDatos(Integer usuario, Integer clave) 

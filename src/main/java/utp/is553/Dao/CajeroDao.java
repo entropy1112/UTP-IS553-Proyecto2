@@ -37,7 +37,7 @@ public class CajeroDao {
             total[i] += aCargar[i];
         }
         cajero.setBilletes(total);
-        cajero.setSaldo(cajero.contarSaldo());
+        cajero.setSaldo(contarSaldo(cajero));
     }
     
     public void consignar(Integer usuario, Integer monto) 
@@ -59,10 +59,55 @@ public class CajeroDao {
         
     }
     
-    public Integer consultarSaldo(Cajero cajero) {
+    public Integer contarSaldo(Cajero cajero){
+        Integer[] billetes = cajero.getBilletes();
+        Integer total = (billetes[0]*50000) + (billetes[1]*20000) 
+                       + (billetes[2]*10000) + (billetes[3]*5000)
+                       + (billetes[4]*2000); 
+        return total;
+    }
+    
+    public void retirar(Integer retiro, Cajero cajero) throws BilletesException {
+        Integer[] salida = new Integer[5];
+        Integer[] existencia = cajero.getBilletes();
         
-        Integer saldoCajero = cajero.getSaldo();
-        return saldoCajero;
+        if((retiro % 10000) == 1000 || (retiro % 10000) == 3000){
+            throw new BilletesException("No hay manera de entregarle la suma"
+                                        + " de dinero exacta");
+        }
+        
+        while(retiro >= 50000 && existencia[0] > 0){
+            retiro -= 50000;
+            existencia[0] -= 1;
+            salida[0] += 1;
+        }
+        while(retiro >= 20000 && existencia[1] > 0){
+            retiro -= 20000;
+            existencia[1] -= 1;
+            salida[1] += 1;
+        }
+        while(retiro >= 10000 && existencia[2] > 0){
+            retiro -= 10000;
+            existencia[2] -= 1;
+            salida[2] += 1;
+        }
+        while(retiro >= 5000 && existencia[3] > 0 && ((retiro - 5000) % 2000) == 0 ){
+            retiro -= 5000;
+            existencia[3] -= 1;
+            salida[3] += 1;
+        }
+        while(retiro >= 2000 && existencia[4] > 0){
+            retiro -= 2000;
+            existencia[4] -= 1;
+            salida[4] += 1;
+        }
+        
+        if(!retiro.equals(0)){
+            throw new BilletesException("No hay suficiente dinero para "
+                                        + "entregar al usuario");
+        } else {
+            cajero.setBilletes(existencia);
+        }
     }
     
 }
