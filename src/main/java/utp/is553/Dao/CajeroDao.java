@@ -2,7 +2,7 @@
 package utp.is553.Dao;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import utp.is553.Entidades.Cajero;
 import utp.is553.Entidades.Cliente;
@@ -15,7 +15,7 @@ import utp.is553.Excepciones.BilletesException;
  */
 public class CajeroDao {
     
-    public static CajeroDao instancia;
+    private static CajeroDao instancia;
     
     public static CajeroDao getInstance(){
         if(instancia == null){
@@ -30,21 +30,74 @@ public class CajeroDao {
         emf = Persistence.createEntityManagerFactory("proyecto2");
     }
     
-    public void cargarDinero(Cajero cajero, Integer[] aCargar){ 
-        
-        Integer[] total = cajero.getBilletes();
-        for(int i = 0; i<=4; i++) {
-            total[i] += aCargar[i];
+    public Cajero añadirCajero(String nombre, Integer[] billetes) 
+                               throws BaseDatosException {
+        var em = emf.createEntityManager();
+        EntityTransaction et = null;
+        try {
+            et = em.getTransaction();
+            et.begin();
+            
+            Cajero cajero = new Cajero();
+            cajero.setNombre(nombre);
+            cajero.setBilletes(billetes);
+            cajero.setSaldo(contarSaldo(cajero));
+            
+            em.persist(cajero);
+            
+            et.commit();
+            return cajero;
+            
+        } catch (Exception e) {
+            if (et != null) {
+                et.rollback();
+            }
+            throw new BaseDatosException(e.getMessage());
+        } finally {
+            em.close();
         }
-        cajero.setBilletes(total);
-        cajero.setSaldo(contarSaldo(cajero));
+    }
+    
+    public void cargarDinero(Cajero cajero, Integer[] aCargar) 
+                            throws BaseDatosException{ 
+        
+        var em = emf.createEntityManager();
+        EntityTransaction et = null;
+        try {
+            et = em.getTransaction();
+            et.begin();
+            
+            Integer[] total = cajero.getBilletes();
+            for(int i = 0; i<=4; i++) {
+                total[i] += aCargar[i];
+            }
+            cajero.setBilletes(total);
+            cajero.setSaldo(contarSaldo(cajero));
+            
+            em.merge(cajero);
+            
+            et.commit();
+            
+        } catch (Exception e) {
+            if (et != null) {
+                et.rollback();
+            }
+            throw new BaseDatosException(e.getMessage());
+        } finally {
+            em.close();
+        }
+
     }
     
     public void consignar(Integer usuario, Integer monto) 
                           throws BaseDatosException {
         
         var em = emf.createEntityManager();
+        EntityTransaction et = null;
         try {
+            et = em.getTransaction();
+            et.begin();
+            
             var query = em.createQuery("select e from Cliente e where e.usuario"
                                        + " = :usuario", Cliente.class);
             query.setParameter("usuario", usuario);
@@ -53,8 +106,17 @@ public class CajeroDao {
             Integer total = cliente.getSaldo() + monto;
             cliente.setSaldo(total);
             
-        } catch (NoResultException e) {
-            throw new BaseDatosException("Usuario inexistente");
+            em.merge(cliente);
+            
+            et.commit();
+        
+        } catch (Exception e) {
+            if(et != null) {
+                et.rollback();
+                throw new BaseDatosException("Usuario inexistente");
+            }
+        } finally { 
+            em.close();
         }
         
     }
@@ -67,8 +129,11 @@ public class CajeroDao {
         return total;
     }
     
-    public void retirar(Integer retiro, Cajero cajero) throws BilletesException {
+    public Integer[] retirar(Integer retiro, Cajero cajero) throws BilletesException {
         Integer[] salida = new Integer[5];
+        for(int i=0;i<=4;i++) {
+            salida[i] = 0;
+        }
         Integer[] existencia = cajero.getBilletes();
         
         if((retiro % 10000) == 1000 || (retiro % 10000) == 3000){
@@ -108,6 +173,8 @@ public class CajeroDao {
         } else {
             cajero.setBilletes(existencia);
         }
+        
+        return salida;
     }
     
 }

@@ -6,16 +6,39 @@
 
   <persistence-unit name="proyecto2">
       
+      <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
       <class>utp.is553.Entidades.Cliente</class>
+      <class>utp.is553.Entidades.Cajero</class>
       
     <properties>
-        <property name="javax.persistence.jdbc.driver" value="org.h2.driver" />
-        <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test" />
-        <property name="javax.persistence.jdbc.user" value="sa" />
-        <property name="javax.persistence.jdbc.password" value="" />
+        <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+        <property name="javax.persistence.jdbc.url" value="jdbc:h2:~/test"/>
+        <property name="javax.persistence.jdbc.user" value="sa"/>
+        <property name="javax.persistence.jdbc.password" value=""/>
         
-        <property name="hibernate.dialect" value="org.hibernate.dialect.H2dialect" />
-        <property name="hibernate.hbm2ddl.auto" value="create" />
+        <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+        <property name="hibernate.schema.scan.test_classes" value="true"/>
+        <property name="hibernate.hbm2ddl.auto" value="create"/>
+        <property name="hibernate.show_sql" value="true"/>
+    </properties>
+  </persistence-unit>
+  
+  <persistence-unit name="test">
+      
+      <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+      <class>utp.is553.Entidades.Cliente</class>
+      <class>utp.is553.Entidades.Cajero</class>
+      
+    <properties>
+        <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+        <property name="javax.persistence.jdbc.url" value="jdbc:h2:~/test"/>
+        <property name="javax.persistence.jdbc.user" value="sa"/>
+        <property name="javax.persistence.jdbc.password" value=""/>
+        
+        <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+        <property name="hibernate.schema.scan.test_classes" value="true"/>
+        <property name="hibernate.hbm2ddl.auto" value="validate"/>
+        <property name="hibernate.show_sql" value="true"/>
     </properties>
   </persistence-unit>
 

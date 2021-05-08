@@ -3,6 +3,7 @@ package utp.is553.Dao;
 
 import utp.is553.Excepciones.*;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import utp.is553.Entidades.Cajero;
@@ -29,16 +30,40 @@ public class ClienteDao implements Verificadores{
         emf = Persistence.createEntityManagerFactory("proyecto2");
     }
     
-    public Integer consultarSaldo(String usuario, String clave) 
+    public Cliente añadirCliente(Integer usuario, Integer clave, Integer saldo) 
+                                 throws BaseDatosException {
+        var em = emf.createEntityManager();
+        EntityTransaction et = null;
+        try {
+            et = em.getTransaction();
+            et.begin();
+            
+            Cliente cliente = new Cliente(usuario,clave,saldo);
+            em.persist(cliente);
+            
+            et.commit();
+            return cliente;
+            
+        } catch (Exception e) {
+            if(et != null) {
+                et.rollback();
+                throw new BaseDatosException(e.getMessage());
+            }
+        } finally {
+            em.close();
+        }
+        return null;
+        
+    }
+    
+    public Integer consultarSaldo(Integer usuario, Integer clave) 
                                throws BaseDatosException, 
                                       ClaveErroneaException {
         
-        Integer usuarioInt = Integer.valueOf(usuario);
-        Integer claveInt = Integer.valueOf(clave);
         Integer saldo = null;
         
         try {
-            Cliente cliente = verificarDatos(usuarioInt, claveInt);
+            Cliente cliente = verificarDatos(usuario, clave);
             
             saldo = cliente.getSaldo();
             
@@ -51,37 +76,58 @@ public class ClienteDao implements Verificadores{
         return saldo;
     }
     
-    public Integer retirarDinero(Integer usuario, Integer clave, Integer retiro, 
-                                 Cajero cajero)
-                                 throws BaseDatosException, 
-                                        SaldoInsuficienteException, 
-                                        ClaveErroneaException,
-                                        BilletesException {
+    public Integer[] retirarDinero(Integer usuario, Integer clave, Integer retiro, 
+                                    Cajero cajero)
+                                    throws BaseDatosException, 
+                                           SaldoInsuficienteException, 
+                                           ClaveErroneaException,
+                                           BilletesException {
 
         Integer saldo = null;
         CajeroDao cajeroDao = CajeroDao.getInstance();
-        
+        Integer[] salidaBilletes;
+        var em = emf.createEntityManager();
+        EntityTransaction et = null;
         try {
+            et = em.getTransaction();
+            et.begin();
+            
             Cliente cliente = verificarDatos(usuario, clave);
             verificarSaldo(retiro, cliente);
             verificarExistencia(retiro, cajero);
-            cajeroDao.retirar(retiro, cajero);
+            salidaBilletes = cajeroDao.retirar(retiro, cajero);
             saldo = cliente.getSaldo();
             saldo -= retiro;
             cliente.setSaldo(saldo);
+            em.merge(cliente);
+            
+            et.commit();
+            return salidaBilletes;
             
         } catch (BaseDatosException e) {
-            throw new BaseDatosException(e.getMessage());
+            if(et != null) {
+                et.rollback();
+                throw new BaseDatosException(e.getMessage());
+            }
         } catch (ClaveErroneaException e) {
-            throw new ClaveErroneaException(e.getMessage());
+            if(et != null) {
+                et.rollback();
+                throw new ClaveErroneaException(e.getMessage());
+            }
         } catch (SaldoInsuficienteException e) {
-            throw new SaldoInsuficienteException(e.getMessage());
+            if(et != null) {
+                et.rollback();
+                throw new SaldoInsuficienteException(e.getMessage());
+            }
         } catch (BilletesException e) {
-            throw new BilletesException(e.getMessage());
+            if(et != null) {
+                et.rollback();
+                throw new BilletesException(e.getMessage());
+            }
+        } finally {
+            em.close();
         }
-        
-        return saldo;
-        
+        return null;
     }
 
 
