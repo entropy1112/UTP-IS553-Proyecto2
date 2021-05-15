@@ -59,7 +59,7 @@ public class CajeroDao {
     }
     
     public void cargarDinero(Cajero cajero, Integer[] aCargar) 
-                            throws BaseDatosException{ 
+                            throws BaseDatosException { 
         
         var em = emf.createEntityManager();
         EntityTransaction et = null;
