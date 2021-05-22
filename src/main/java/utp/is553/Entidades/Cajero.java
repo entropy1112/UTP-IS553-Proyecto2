@@ -38,6 +38,10 @@ public class Cajero implements Serializable{
             billetes[i] = 0;
         }
     }
+    public Cajero(String nombre, Integer[] billetes) {
+        this.nombre = nombre;
+        this.billetes = billetes;
+    }
 
     public Integer getSaldo() {
         return saldo;

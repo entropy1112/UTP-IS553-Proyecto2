@@ -5,8 +5,15 @@
  */
 package utp.is553.IGU;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import utp.is553.Excepciones.BaseDatosException;
+import utp.is553.Excepciones.ClaveErroneaException;
+import utp.is553.Excepciones.FileException;
 import utp.is553.facade.CajeroFacade;
 import utp.is553.facade.ClienteFacade;
+import utp.is553.Utils.FileUtils;
 
 /**
  *
@@ -95,6 +102,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jPanel1.add(jPanel3, java.awt.BorderLayout.PAGE_START);
 
         btnConsultarSaldo.setText("Consultar Saldo");
+        btnConsultarSaldo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConsultarSaldoActionPerformed(evt);
+            }
+        });
         jPanel4.add(btnConsultarSaldo);
 
         btnRetirar.setLabel("Retirar ");
@@ -150,7 +162,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         jPanel1.add(jPanel5, java.awt.BorderLayout.CENTER);
 
-        jTabbedPane1.addTab("Cliente", jPanel1);
+        jTabbedPane1.addTab("Cajero", jPanel1);
 
         jPanel2.setLayout(new java.awt.BorderLayout());
 
@@ -332,7 +344,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         jPanel2.add(jPanel13, java.awt.BorderLayout.CENTER);
 
-        jTabbedPane1.addTab("Cajero", jPanel2);
+        jTabbedPane1.addTab("Banco", jPanel2);
 
         getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
@@ -342,12 +354,40 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void txtUsConsigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsConsigActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtUsConsigActionPerformed
+
+    private void btnConsultarSaldoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultarSaldoActionPerformed
+        // TODO add your handling code here:
+        
+        Integer usuario = Integer.valueOf(txtUsuario.getText());
+        Integer clave = Integer.valueOf(txtClave.getText());
+        
+        try {
+            Integer saldo = clienteFacade.consultarSaldo(usuario, clave);
+            
+            JOptionPane.showMessageDialog(this, "Su saldo actual es:\n"+saldo);
+            
+        } catch (BaseDatosException | ClaveErroneaException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage()); 
+        }
+
+    }//GEN-LAST:event_btnConsultarSaldoActionPerformed
     
-    public void cargarDatos() {
+    private void cargarDatos() {
         /*
-        * Se trata de cargar los clientes en la base de datos, igual que los 
-        * cajeros. Al menos mientras consigo una manera más estable de hacerlo
+        * Se trata de cargar los clientes y los cajeros en la base de datos.
         */
+        FileUtils fu = new FileUtils();
+        
+        try {
+            
+            var cajeros = fu.cargarCajeros();
+            var clientes = fu.cargarClientes();
+            
+            fu.montarABase(clientes,cajeros);
+            
+        } catch (FileException | BaseDatosException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage()); 
+        } 
     }
     
     /**
@@ -391,8 +431,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
@@ -407,18 +445,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel16;
-    private javax.swing.JPanel jPanel17;
-    private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -434,15 +465,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JTextField txtClave;
     private javax.swing.JTextField txtMonConsig;
     private javax.swing.JTextField txtMonto;
-    private javax.swing.JTextField txtMontoConsig;
-    private javax.swing.JTextField txtMontoConsig1;
-    private javax.swing.JTextField txtMontoConsig2;
     private javax.swing.JTextField txtNombreCajero;
     private javax.swing.JTextField txtSaldoCajero;
     private javax.swing.JTextField txtUsConsig;
     private javax.swing.JTextField txtUsuario;
-    private javax.swing.JTextField txtUsuarioConsig;
-    private javax.swing.JTextField txtUsuarioConsig1;
-    private javax.swing.JTextField txtUsuarioConsig2;
     // End of variables declaration//GEN-END:variables
 }
