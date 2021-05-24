@@ -30,7 +30,7 @@ public class ClienteDao implements Verificadores{
         emf = Persistence.createEntityManagerFactory("proyecto2");
     }
     
-    public Cliente añadirCliente(Integer usuario, Integer clave, Integer saldo) 
+    public Cliente añadirCliente(Integer usuario, String clave, Integer saldo) 
                                  throws BaseDatosException {
         var em = emf.createEntityManager();
         EntityTransaction et = null;
@@ -56,7 +56,7 @@ public class ClienteDao implements Verificadores{
         
     }
     
-    public Integer consultarSaldo(Integer usuario, Integer clave) 
+    public Integer consultarSaldo(Integer usuario, String clave) 
                                throws BaseDatosException, 
                                       ClaveErroneaException {
         
@@ -76,7 +76,7 @@ public class ClienteDao implements Verificadores{
         return saldo;
     }
     
-    public Integer[] retirarDinero(Integer usuario, Integer clave, Integer retiro, 
+    public Integer[] retirarDinero(Integer usuario, String clave, Integer retiro, 
                                     Cajero cajero)
                                     throws BaseDatosException, 
                                            SaldoInsuficienteException, 
@@ -100,6 +100,7 @@ public class ClienteDao implements Verificadores{
             saldo -= retiro;
             cliente.setSaldo(saldo);
             em.merge(cliente);
+            em.merge(cajero);
             
             et.commit();
             return salidaBilletes;
@@ -132,7 +133,7 @@ public class ClienteDao implements Verificadores{
 
 
     @Override
-    public Cliente verificarDatos(Integer usuario, Integer clave) 
+    public Cliente verificarDatos(Integer usuario, String clave) 
                               throws BaseDatosException, ClaveErroneaException {
         
         var em = emf.createEntityManager();

@@ -25,7 +25,7 @@ public class Cajero implements Serializable{
     @Column(name = "ID")
     private Long id;
     
-    @Column(name = "Nombre")
+    @Column(name = "Nombre", unique = true)
     private String nombre;
     
     @Column(name = "Saldo")

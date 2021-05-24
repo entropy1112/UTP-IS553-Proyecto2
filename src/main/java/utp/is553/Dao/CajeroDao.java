@@ -136,7 +136,7 @@ public class CajeroDao {
         }
         Integer[] existencia = cajero.getBilletes();
         
-        if((retiro % 10000) == 1000 || (retiro % 10000) == 3000){
+        if((retiro % 10000) == 1000 || (retiro % 10000) == 3000 || retiro < 2000){
             throw new BilletesException("No hay manera de entregarle la suma"
                                         + " de dinero exacta");
         }

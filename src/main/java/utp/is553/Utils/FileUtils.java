@@ -7,12 +7,14 @@ package utp.is553.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import utp.is553.Dao.CajeroDao;
 import utp.is553.Entidades.Cajero;
@@ -48,7 +50,7 @@ public class FileUtils {
                 var campos = lector.nextLine().split(";",3);
                 
                 Integer codigo = Integer.valueOf(campos[0]);
-                Integer clave = Integer.valueOf(campos[1]);
+                String clave = campos[1];
                 Integer saldo = Integer.valueOf(campos[2]);
                 
                 Cliente cliente = new Cliente(codigo,clave,saldo);
@@ -58,6 +60,8 @@ public class FileUtils {
             
         } catch (FileNotFoundException e) {
             throw new FileException("No se encontró el archivo");
+        } catch (NumberFormatException e) {
+            throw new FileException("Error en el formato del archivo");
         }
         
         return clientes;
@@ -89,8 +93,10 @@ public class FileUtils {
                 cajeros.add(c);
             }
             
-        } catch (FileNotFoundException | NumberFormatException e) {
+        } catch (FileNotFoundException e) {
             throw new FileException("No se encontró el archivo");
+        } catch (NumberFormatException e) {
+            throw new FileException("Error en el formato del archivo");
         }
         
         return cajeros;
@@ -108,13 +114,11 @@ public class FileUtils {
             clientes.forEach((cliente) -> {
                 em.persist(cliente);
             });
-            
             cajeros.forEach((cajero) -> {
                 em.persist(cajero);
             });
             
             et.commit();
-            
         } catch (Exception e) {
             if(et != null) {
                 et.rollback();
@@ -126,4 +130,62 @@ public class FileUtils {
         
     }
     
+    public Cajero seleccionarCajero (Long opcion) {
+        EntityManager em = emf.createEntityManager();
+        
+        Cajero salida = em.find(Cajero.class, opcion);
+            
+        return salida;
+    }
+    
+    public void actualizar() throws FileException {
+        
+        List<Cajero> cajeros = null;
+        List<Cliente> clientes = null;
+        EntityManager em = emf.createEntityManager();
+        
+        String textoCajeros = "";
+        String textoClientes = "";
+        File archivoClientes = new File(rutaClientes);
+        File archivoCajero = new File(rutaCajeros);
+        
+        try {
+            cajeros = em.createQuery("SELECT e FROM Cajero e").getResultList();
+            
+            clientes = em.createQuery("SELECT e FROM Cliente e").getResultList();
+        } catch (NoResultException e) {
+            throw new FileException("Error en la base");
+        }
+        
+        for(Cajero cajero: cajeros) {
+            String billetes = "";
+            Integer[] existencia = cajero.getBilletes();
+            for(int i=0; i<5; i++) {
+                 if(i == 4){
+                     billetes += String.valueOf(existencia[i]);
+                 } else {
+                     billetes += String.valueOf(existencia[i])+",";
+                 }
+            }
+            textoCajeros += cajero.getNombre()+";"+billetes+"\n";
+        }
+        
+        for(Cliente cliente: clientes) {
+            textoClientes += String.valueOf(cliente.getUsuario())+";"
+                             +cliente.getClave()
+                             +";"+String.valueOf(cliente.getSaldo())+"\n";
+        }
+        
+        try (java.io.PrintWriter salida = new PrintWriter(archivoClientes)){
+                salida.print(textoClientes);
+        } catch (FileNotFoundException ex) {
+            throw new FileException("No se encontró el archivo");
+        }
+        
+        try (java.io.PrintWriter salida = new PrintWriter(archivoCajero)){
+                salida.print(textoCajeros);
+        } catch (FileNotFoundException ex) {
+            throw new FileException("No se encontró el archivo");
+        }
+    }
 }

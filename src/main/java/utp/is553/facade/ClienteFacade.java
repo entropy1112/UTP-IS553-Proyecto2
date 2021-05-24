@@ -24,7 +24,7 @@ public class ClienteFacade {
         clienteDao = ClienteDao.getInstance();
     }
     
-    public Integer consultarSaldo(Integer usuario, Integer clave) 
+    public Integer consultarSaldo(Integer usuario, String clave) 
                                   throws BaseDatosException, 
                                          ClaveErroneaException {
         try {
@@ -37,7 +37,7 @@ public class ClienteFacade {
         }
     }
     
-    public Integer[] retirarDinero(Integer usuario, Integer clave, Integer retiro, 
+    public Integer[] retirarDinero(Integer usuario, String clave, Integer retiro, 
                                     Cajero cajero)
                                     throws BaseDatosException, 
                                            SaldoInsuficienteException, 

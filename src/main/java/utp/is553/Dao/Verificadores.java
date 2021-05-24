@@ -18,7 +18,7 @@ import utp.is553.Excepciones.SaldoInsuficienteException;
  */
 public interface Verificadores {
     
-    public Cliente verificarDatos(Integer usuario, Integer clave) 
+    public Cliente verificarDatos(Integer usuario, String clave) 
                                throws BaseDatosException, ClaveErroneaException;
     
     public void verificarSaldo(Integer retiro, Cliente cliente)

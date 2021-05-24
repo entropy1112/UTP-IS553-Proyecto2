@@ -5,12 +5,19 @@
  */
 package utp.is553.IGU;
 
+import java.awt.HeadlessException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import utp.is553.Entidades.Cajero;
+import utp.is553.Entidades.Cliente;
 import utp.is553.Excepciones.BaseDatosException;
+import utp.is553.Excepciones.BilletesException;
 import utp.is553.Excepciones.ClaveErroneaException;
 import utp.is553.Excepciones.FileException;
+import utp.is553.Excepciones.SaldoInsuficienteException;
 import utp.is553.facade.CajeroFacade;
 import utp.is553.facade.ClienteFacade;
 import utp.is553.Utils.FileUtils;
@@ -24,12 +31,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     /**
      * Creates new form VentanaPrincipal
      */
-    private ClienteFacade clienteFacade = new ClienteFacade();
-    private CajeroFacade cajeroFacade = new CajeroFacade();
+    private final ClienteFacade clienteFacade = new ClienteFacade();
+    private final CajeroFacade cajeroFacade = new CajeroFacade();
+    FileUtils fu = new FileUtils();
+    private Cajero esteCajero = null;
     
     public VentanaPrincipal() {
         initComponents();
-        cargarDatos();
+        iniciar();
         
         setLocationRelativeTo(null);
     }
@@ -57,10 +66,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         txtUsuario = new javax.swing.JTextField();
         txtClave = new javax.swing.JTextField();
         txtMonto = new javax.swing.JTextField();
+        txtCajero = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnConsignar = new javax.swing.JButton();
+        btnCargarBilletes = new javax.swing.JButton();
         jPanel7 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jPanel13 = new javax.swing.JPanel();
@@ -81,11 +92,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
+        txt50 = new javax.swing.JTextField();
+        txt20 = new javax.swing.JTextField();
+        txt10 = new javax.swing.JTextField();
+        txt5 = new javax.swing.JTextField();
+        txt2 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BANISCUTP");
@@ -110,6 +121,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jPanel4.add(btnConsultarSaldo);
 
         btnRetirar.setLabel("Retirar ");
+        btnRetirar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRetirarActionPerformed(evt);
+            }
+        });
         jPanel4.add(btnRetirar);
 
         jPanel1.add(jPanel4, java.awt.BorderLayout.PAGE_END);
@@ -125,6 +141,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setText("Monto a retirar:");
 
+        txtMonto.setText("0");
+
+        txtCajero.setEnabled(false);
+
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel6.setText("Cajero:");
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -134,18 +157,24 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txtClave)
                     .addComponent(txtUsuario)
-                    .addComponent(txtMonto, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE))
+                    .addComponent(txtMonto, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
+                    .addComponent(txtCajero))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtCajero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -157,7 +186,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(txtMonto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel5, java.awt.BorderLayout.CENTER);
@@ -166,11 +195,21 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         jPanel2.setLayout(new java.awt.BorderLayout());
 
-        jButton1.setText("Consignar");
-        jPanel6.add(jButton1);
+        btnConsignar.setText("Consignar");
+        btnConsignar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConsignarActionPerformed(evt);
+            }
+        });
+        jPanel6.add(btnConsignar);
 
-        jButton2.setText("Cargar Billetes");
-        jPanel6.add(jButton2);
+        btnCargarBilletes.setText("Cargar Billetes");
+        btnCargarBilletes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCargarBilletesActionPerformed(evt);
+            }
+        });
+        jPanel6.add(btnCargarBilletes);
 
         jPanel2.add(jPanel6, java.awt.BorderLayout.PAGE_END);
 
@@ -189,13 +228,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         jLabel14.setText("Usuario:");
 
-        txtUsConsig.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtUsConsigActionPerformed(evt);
-            }
-        });
-
         jLabel15.setText("Monto a consignar:");
+
+        txtMonConsig.setText("0");
 
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
         jPanel14.setLayout(jPanel14Layout);
@@ -231,6 +266,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel12.setText("Cajero:");
 
         jLabel13.setText("Saldo:");
+
+        txtNombreCajero.setEnabled(false);
+
+        txtSaldoCajero.setEnabled(false);
 
         javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
         jPanel15.setLayout(jPanel15Layout);
@@ -282,6 +321,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel21.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel21.setText("2.000:");
 
+        txt50.setText("0");
+
+        txt20.setText("0");
+
+        txt10.setText("0");
+
+        txt5.setText("0");
+
+        txt2.setText("0");
+
         javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
         jPanel16.setLayout(jPanel16Layout);
         jPanel16Layout.setHorizontalGroup(
@@ -297,17 +346,17 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                             .addComponent(jLabel17, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
-                            .addComponent(jTextField2)
-                            .addComponent(jTextField3))
+                            .addComponent(txt50, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
+                            .addComponent(txt20)
+                            .addComponent(txt10))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel21, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel20, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
-                            .addComponent(jTextField5))))
+                            .addComponent(txt5, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
+                            .addComponent(txt2))))
                 .addContainerGap())
         );
         jPanel16Layout.setVerticalGroup(
@@ -320,23 +369,23 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     .addGroup(jPanel16Layout.createSequentialGroup()
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel17)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txt50, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel18)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(txt20, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel16Layout.createSequentialGroup()
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel20))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel21)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(txt2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txt10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -351,44 +400,156 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtUsConsigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsConsigActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtUsConsigActionPerformed
-
     private void btnConsultarSaldoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsultarSaldoActionPerformed
         // TODO add your handling code here:
-        
-        Integer usuario = Integer.valueOf(txtUsuario.getText());
-        Integer clave = Integer.valueOf(txtClave.getText());
-        
+
         try {
+            Integer usuario = Integer.valueOf(txtUsuario.getText());
+            String clave = txtClave.getText();
+            
             Integer saldo = clienteFacade.consultarSaldo(usuario, clave);
             
             JOptionPane.showMessageDialog(this, "Su saldo actual es:\n"+saldo);
+            limpiarCamposCajero();
             
         } catch (BaseDatosException | ClaveErroneaException e) {
             JOptionPane.showMessageDialog(this, e.getMessage()); 
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Ingrese datos válidos"); 
         }
-
+        
     }//GEN-LAST:event_btnConsultarSaldoActionPerformed
+
+    private void btnRetirarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRetirarActionPerformed
+        // TODO add your handling code here:
+        
+        Integer usuario = Integer.valueOf(txtUsuario.getText());
+        String clave = txtClave.getText();
+        Integer retiro = 0;
+        if(!txtMonto.getText().isBlank()) {
+            retiro = Integer.valueOf(txtMonto.getText());
+        } else { 
+            JOptionPane.showMessageDialog(this, "Ingrese un monto");
+        }
+        
+        try {
+            Integer[] salidaBilletes = clienteFacade.retirarDinero(usuario, 
+                                                    clave, retiro, esteCajero);
+            JOptionPane.showMessageDialog(this, "El retiro fue exitoso.\n"
+                    + "Se le entregarán:\n$50.000: "+salidaBilletes[0]
+                    +"\n$20.000: "+salidaBilletes[1]
+                    +"\n$10.000: "+salidaBilletes[2]
+                    +"\n$5.000: "+salidaBilletes[3]
+                    +"\n$2.000: "+salidaBilletes[4]);
+            
+            fu.actualizar();
+            limpiarCamposCajero();
+        } catch (HeadlessException | BaseDatosException | BilletesException |
+                ClaveErroneaException | SaldoInsuficienteException |
+                FileException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+        
+    }//GEN-LAST:event_btnRetirarActionPerformed
+
+    private void btnConsignarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConsignarActionPerformed
+        // TODO add your handling code here:
+        if(txtMonConsig.getText().equals("") || txtUsConsig.getText().equals("")) {
+            JOptionPane.showMessageDialog(rootPane, "Campos vacíos");
+        } else {
+            Integer usuario = Integer.valueOf(txtUsConsig.getText());
+            Integer monto = Integer.valueOf(txtMonConsig.getText());
+            try {
+                cajeroFacade.consignar(usuario, monto);
+                JOptionPane.showMessageDialog(rootPane, "Consignación exitosa");
+                fu.actualizar();
+                limpiarCamposBanco(2);
+            } catch (BaseDatosException | FileException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnConsignarActionPerformed
+
+    private void btnCargarBilletesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarBilletesActionPerformed
+        // TODO add your handling code here:
+        
+        try {
+            Integer[] aCargar = new Integer[5];
+            aCargar[0] = Integer.valueOf(txt50.getText());
+            aCargar[1] = Integer.valueOf(txt20.getText());
+            aCargar[2] = Integer.valueOf(txt10.getText());
+            aCargar[3] = Integer.valueOf(txt5.getText());
+            aCargar[4] = Integer.valueOf(txt2.getText());
+            
+            cajeroFacade.cargarDinero(esteCajero, aCargar);
+            JOptionPane.showMessageDialog(rootPane, "Carga existosa");
+            fu.actualizar();
+            txtSaldoCajero.setText(esteCajero.getSaldo().toString());
+            limpiarCamposBanco(1);
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Ingrese datos válidos"); 
+        } catch (BaseDatosException | FileException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage()); 
+        }
+        
+    }//GEN-LAST:event_btnCargarBilletesActionPerformed
     
-    private void cargarDatos() {
+    private void iniciar() {
         /*
         * Se trata de cargar los clientes y los cajeros en la base de datos.
         */
-        FileUtils fu = new FileUtils();
+        List<Cliente> clientes = null;
+        List<Cajero> cajeros = null;
         
         try {
             
-            var cajeros = fu.cargarCajeros();
-            var clientes = fu.cargarClientes();
+            cajeros = fu.cargarCajeros();
+            clientes = fu.cargarClientes();
             
             fu.montarABase(clientes,cajeros);
             
         } catch (FileException | BaseDatosException e) {
             JOptionPane.showMessageDialog(this, e.getMessage()); 
-        } 
+        }   
+        
+        try {
+            String mensaje = "";
+            for(Cajero cajero : cajeros) {
+                mensaje += cajero.getId()+". "+cajero.getNombre()+"\n";
+            }
+            
+            Long opcion = Long.valueOf(JOptionPane.showInputDialog(mensaje));
+            
+            esteCajero = fu.seleccionarCajero(opcion);
+            
+            txtCajero.setText(esteCajero.getNombre());
+            txtNombreCajero.setText(esteCajero.getNombre());
+            txtSaldoCajero.setText(esteCajero.getSaldo().toString());
+        } catch (HeadlessException e) {
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Valor inválido");
+        }
     }
+    
+    private void limpiarCamposCajero () {
+        txtUsuario.setText("");
+        txtClave.setText("");
+        txtMonto.setText("0");
+    }    
+    
+    private void limpiarCamposBanco (Integer opcion) {
+        if(opcion == 1) {
+            txt50.setText("0");
+            txt20.setText("0");
+            txt10.setText("0");
+            txt5.setText("0");
+            txt2.setText("0");
+        } else if(opcion == 2) {
+            txtUsConsig.setText("");
+            txtMonConsig.setText("0");
+        }
+    } 
     
     /**
      * @param args the command line arguments
@@ -426,10 +587,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCargarBilletes;
+    private javax.swing.JButton btnConsignar;
     private javax.swing.JButton btnConsultarSaldo;
     private javax.swing.JButton btnRetirar;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -445,6 +606,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
@@ -457,11 +619,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField txt10;
+    private javax.swing.JTextField txt2;
+    private javax.swing.JTextField txt20;
+    private javax.swing.JTextField txt5;
+    private javax.swing.JTextField txt50;
+    private javax.swing.JTextField txtCajero;
     private javax.swing.JTextField txtClave;
     private javax.swing.JTextField txtMonConsig;
     private javax.swing.JTextField txtMonto;

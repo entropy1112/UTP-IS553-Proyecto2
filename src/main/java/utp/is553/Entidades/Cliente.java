@@ -20,7 +20,7 @@ public class Cliente implements Serializable{
     private Integer usuario;
     
     @Column(name = "Clave")
-    private Integer clave;
+    private String clave;
     
     @Column(name = "Saldo")
     private Integer saldo;
@@ -29,7 +29,7 @@ public class Cliente implements Serializable{
         
     }
 
-    public Cliente(Integer usuario, Integer clave, Integer saldo) {
+    public Cliente(Integer usuario, String clave, Integer saldo) {
         this.usuario = usuario;
         this.clave = clave;
         this.saldo = saldo;
@@ -43,11 +43,11 @@ public class Cliente implements Serializable{
         this.usuario = usuario;
     }
 
-    public Integer getClave() {
+    public String getClave() {
         return clave;
     }
 
-    public void setClave(Integer clave) {
+    public void setClave(String clave) {
         this.clave = clave;
     }
 
