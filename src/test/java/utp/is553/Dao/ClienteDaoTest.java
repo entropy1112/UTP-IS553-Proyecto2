@@ -27,17 +27,17 @@ public class ClienteDaoTest {
         ClienteDao clienteDao = ClienteDao.getInstance();
         
         Integer usuario = 1007;
-        Integer clave = 2368;
+        String clave = "2368";
         Integer saldo = 1000000;
         clienteDao.añadirCliente(usuario,clave,saldo);
         
         Integer usuario2 = 1217;
-        Integer clave2 = 6598;
+        String clave2 = "6598";
         Integer saldo2 = 10000;
         clienteDao.añadirCliente(usuario2,clave2,saldo2);
         
-        Integer total = clienteDao.consultarSaldo(1007, 2368);
-        Integer total2 = clienteDao.consultarSaldo(1217, 6598);
+        Integer total = clienteDao.consultarSaldo(1007, "2368");
+        Integer total2 = clienteDao.consultarSaldo(1217, "6598");
         
         assertEquals(total, saldo);
         assertEquals(total2, saldo2);
@@ -61,7 +61,7 @@ public class ClienteDaoTest {
         Cajero cajero = cajerodao.añadirCajero("Humanidades", billetes);
         
         Integer usuario = 1007;
-        Integer clave = 2368;
+        String clave = "2368";
         Integer saldo = 1000000;
         Integer retiro = 500000;
         Integer[] billetes1 = new Integer[5];
@@ -73,7 +73,7 @@ public class ClienteDaoTest {
         clienteDao.añadirCliente(usuario,clave,saldo);
         
         Integer usuario2 = 1217;
-        Integer clave2 = 6598;
+        String clave2 = "6598";
         Integer saldo2 = 100000;
         Integer retiro2 = 74000;
         Integer[] billetes2 = new Integer[5];

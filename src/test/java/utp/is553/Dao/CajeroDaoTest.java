@@ -79,7 +79,7 @@ public class CajeroDaoTest {
         ClienteDao clienteDao = ClienteDao.getInstance();
         
         Integer usuario = 1007;
-        Integer clave = 2368;
+        String clave = "2368";
         Integer saldo = 1000000;
         Integer consignacion = 500000;
         clienteDao.añadirCliente(usuario,clave,saldo);
@@ -87,7 +87,7 @@ public class CajeroDaoTest {
         Integer total = saldo + consignacion;
         
         Integer usuario2 = 1217;
-        Integer clave2 = 6598;
+        String clave2 = "6598";
         Integer saldo2 = 10000;
         Integer consignacion2 = 25000;
         clienteDao.añadirCliente(usuario2,clave2,saldo2);

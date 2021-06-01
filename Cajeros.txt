@@ -1,4 +1,4 @@
 Humanidades;120,60,80,75,90
-Industrial;50,60,70,80,80
-Bienestar;200,210,90,150,40
-Administrativo;30,110,60,50,20
+Industrial;51,72,83,80,86
+Bienestar;49,210,89,150,38
+Administrativo;23,108,80,50,21

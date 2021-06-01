@@ -6,10 +6,7 @@
 package utp.is553.IGU;
 
 import java.awt.HeadlessException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import utp.is553.Entidades.Cajero;
 import utp.is553.Entidades.Cliente;
@@ -421,18 +418,17 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnConsultarSaldoActionPerformed
 
     private void btnRetirarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRetirarActionPerformed
-        // TODO add your handling code here:
-        
-        Integer usuario = Integer.valueOf(txtUsuario.getText());
-        String clave = txtClave.getText();
-        Integer retiro = 0;
-        if(!txtMonto.getText().isBlank()) {
-            retiro = Integer.valueOf(txtMonto.getText());
-        } else { 
-            JOptionPane.showMessageDialog(this, "Ingrese un monto");
-        }
-        
+        // TODO add your handling code here:        
         try {
+            Integer usuario = Integer.valueOf(txtUsuario.getText());
+            String clave = txtClave.getText();
+            Integer retiro = 0;
+            if (!txtMonto.getText().isBlank()) {
+                retiro = Integer.valueOf(txtMonto.getText());
+            } else {
+                JOptionPane.showMessageDialog(this, "Ingrese un monto");
+            }
+            
             Integer[] salidaBilletes = clienteFacade.retirarDinero(usuario, 
                                                     clave, retiro, esteCajero);
             JOptionPane.showMessageDialog(this, "El retiro fue exitoso.\n"
@@ -448,6 +444,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 ClaveErroneaException | SaldoInsuficienteException |
                 FileException e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Ingrese datos válidos"); 
         }
         
     }//GEN-LAST:event_btnRetirarActionPerformed
